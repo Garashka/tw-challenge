@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import userDirectoryReducer from '../features/user-directory/directorySlice';
 
 export default configureStore({
   reducer: {
-    counter: counterReducer,
+    directory: userDirectoryReducer,
   },
 });
