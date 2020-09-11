@@ -17,7 +17,6 @@ import { compose } from '@reduxjs/toolkit';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import { TableSortLabel } from '@material-ui/core';
 
 const styles = theme => ({
   root: {
@@ -28,8 +27,14 @@ const styles = theme => ({
 class DirectoryTable extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { tableData: [] };
+    this.state = {
+      tableData: [],
+      rowsPerPage: 5,
+      page: 0,
+    };
   }
+
+
 
   componentDidMount() {
     const { setUsers } = this.props;
@@ -45,9 +50,19 @@ class DirectoryTable extends React.Component {
 
   render() {
     const { classes, tableData } = this.props;
+    const { page, rowsPerPage } = this.state;
+
+    const handleChangePage = (event, newPage) => {
+      this.setState({ page: newPage });
+    }
+
+    const handleChangeRowsPerPage = (event) => {
+      this.setState({ rowsPerPage: parseInt(event.target.value, 10) });
+      this.setState({ page: 0 });
+    }
 
     return (
-      <Paper className={classes.root}>
+      <Paper className={classes.root} >
         <TableContainer className={classes.table}>
           <Table stickyHeader>
             <TableHead>
@@ -60,13 +75,29 @@ class DirectoryTable extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tableData.map((row) => (
-                <Row row={row} />
+              {(this.state.rowsPerPage > 0
+                ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : tableData
+              ).map((row) => (
+                <Row key={row.id} row={row} />
               ))}
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  rowsPerPageOptions={[5, 10, 25, 50]}
+                  colSpan={3}
+                  count={tableData.length}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={handleChangePage}
+                  onChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              </TableRow>
+            </TableFooter>
           </Table>
         </TableContainer>
-      </Paper>
+      </Paper >
     )
   }
 }
@@ -102,6 +133,9 @@ function Row(props) {
     </React.Fragment>
   )
 }
+
+
+
 
 const mapStateToProps = state => {
   return {
