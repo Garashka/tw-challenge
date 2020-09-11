@@ -9,8 +9,10 @@ class App extends React.Component {
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <DirectoryTable />
         </header>
+        <div className="user-info-table">
+          <DirectoryTable />
+        </div>
       </div>
     );
   }

@@ -22,6 +22,9 @@ const styles = theme => ({
   root: {
     width: '100%',
   },
+  table: {
+    maxHeight: 800,
+  },
 });
 
 class DirectoryTable extends React.Component {
@@ -75,6 +78,18 @@ class DirectoryTable extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
+              {(this.state.rowsPerPage > 0
+                ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : tableData
+              ).map((row) => (
+                <Row key={row.id} row={row} />
+              ))}
+              {(this.state.rowsPerPage > 0
+                ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                : tableData
+              ).map((row) => (
+                <Row key={row.id} row={row} />
+              ))}
               {(this.state.rowsPerPage > 0
                 ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 : tableData
