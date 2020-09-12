@@ -27,6 +27,9 @@ const styles = theme => ({
       margin: theme.spacing(2),
     },
   },
+  paper: {
+    overflow: "auto"
+  },
   table: {
     maxHeight: 800,
   },
@@ -46,7 +49,7 @@ const styles = theme => ({
 const HeaderCells = [
   { id: 'id', numeric: true, label: 'ID' },
   { id: 'first_name', numeric: false, label: 'First Name' },
-  { id: 'surname', numeric: false, label: 'Surname' },
+  { id: 'last_name', numeric: false, label: 'Surname' },
   { id: 'email', numeric: false, label: 'Email' },
 ];
 
@@ -59,15 +62,18 @@ class DirectoryTable extends React.Component {
       rowsPerPage: 5,
       page: 0,
       order: 'asc',
-      orderBy: 'id'
+      orderBy: 'id',
+      api: ""
     };
   }
 
   componentDidMount() {
     const { setUsers } = this.props;
+    const { api } = this.props;
 
     // In production, a more robust aynsc method should probably used. This will do for now.
-    fetch('https://reqres.in/api/users')
+    // API address is stored in redux. In production we would have some central store of API addresses rather than in the individual components.
+    fetch(api)
       .then(response => response.json())
       .then(data => {
         // Store the requested data in Redux
@@ -75,7 +81,7 @@ class DirectoryTable extends React.Component {
       })
   }
 
-
+  // Sorting functionality, largely taken from Material-UI example
   descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
       return -1;
@@ -85,13 +91,11 @@ class DirectoryTable extends React.Component {
     }
     return 0;
   }
-
   getComparator(order, orderBy) {
     return order === 'desc'
       ? (a, b) => this.descendingComparator(a, b, orderBy)
       : (a, b) => -this.descendingComparator(a, b, orderBy);
   }
-
   stableSort(array, comparator) {
     const stabilizedThis = array.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
@@ -101,8 +105,6 @@ class DirectoryTable extends React.Component {
     });
     return stabilizedThis.map((el) => el[0]);
   }
-
-
 
   render() {
     const { classes, tableData } = this.props;
@@ -126,7 +128,7 @@ class DirectoryTable extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Paper>
+        <Paper className={classes.paper}>
           <TableContainer className={classes.table}>
             <Table stickyHeader>
               <this.TableHeaders
@@ -136,12 +138,13 @@ class DirectoryTable extends React.Component {
                 onRequestSort={handleRequestSort}
               />
               <TableBody>
-                {(this.state.rowsPerPage > 0
-                  ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : tableData
-                ).map((row) => (
-                  <this.Row key={row.id} row={row} />
-                ))}
+                {
+                  this.stableSort(tableData, this.getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => (
+                      <this.Row key={row.id} row={row} />
+                    ))
+                }
               </TableBody>
               <TableFooter>
                 <TableRow>
@@ -266,7 +269,8 @@ class DirectoryTable extends React.Component {
 // Redux bindings
 const mapStateToProps = state => {
   return {
-    tableData: state.directory.users
+    tableData: state.directory.users,
+    api: state.directory.api
   };
 }
 const mapDispatchToProps = {

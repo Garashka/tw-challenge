@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const userDirectorySlice = createSlice({
   name: 'directory',
   initialState: {
+    api: "https://reqres.in/api/users",
     users: [{
       "id": 1,
       "email": "george.bluth@reqres.in",

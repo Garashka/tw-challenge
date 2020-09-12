@@ -6,6 +6,7 @@ import store from './app/store';
 import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 
+// Strict mode must be disabled to remove an error with pagination in Material-UI
 ReactDOM.render(
   <Provider store={store}>
     <App />
