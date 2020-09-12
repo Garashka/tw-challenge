@@ -15,12 +15,17 @@ import TableRow from '@material-ui/core/TableRow';
 import TablePagination from '@material-ui/core/TablePagination';
 import { compose } from '@reduxjs/toolkit';
 import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { CSVLink } from 'react-csv';
 
 const styles = theme => ({
   root: {
     width: '100%',
+    '& > *': {
+      margin: theme.spacing(1),
+    },
   },
   table: {
     maxHeight: 800,
@@ -35,9 +40,9 @@ class DirectoryTable extends React.Component {
       rowsPerPage: 5,
       page: 0,
     };
+    // Ref used to link material-UI button to CSV-Link library button
+    this.csvLink = React.createRef();
   }
-
-
 
   componentDidMount() {
     const { setUsers } = this.props;
@@ -65,54 +70,60 @@ class DirectoryTable extends React.Component {
     }
 
     return (
-      <Paper className={classes.root} >
-        <TableContainer className={classes.table}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>ID</TableCell>
-                <TableCell>First Name</TableCell>
-                <TableCell>Surname</TableCell>
-                <TableCell>Email</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(this.state.rowsPerPage > 0
-                ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : tableData
-              ).map((row) => (
-                <Row key={row.id} row={row} />
-              ))}
-              {(this.state.rowsPerPage > 0
-                ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : tableData
-              ).map((row) => (
-                <Row key={row.id} row={row} />
-              ))}
-              {(this.state.rowsPerPage > 0
-                ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : tableData
-              ).map((row) => (
-                <Row key={row.id} row={row} />
-              ))}
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TablePagination
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                  colSpan={3}
-                  count={tableData.length}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={handleChangePage}
-                  onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </TableContainer>
-      </Paper >
+      <div className={classes.root}>
+        <Paper>
+          <TableContainer className={classes.table}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell>ID</TableCell>
+                  <TableCell>First Name</TableCell>
+                  <TableCell>Surname</TableCell>
+                  <TableCell>Email</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(this.state.rowsPerPage > 0
+                  ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  : tableData
+                ).map((row) => (
+                  <Row key={row.id} row={row} />
+                ))}
+                {(this.state.rowsPerPage > 0
+                  ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  : tableData
+                ).map((row) => (
+                  <Row key={row.id} row={row} />
+                ))}
+                {(this.state.rowsPerPage > 0
+                  ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  : tableData
+                ).map((row) => (
+                  <Row key={row.id} row={row} />
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, 50]}
+                    colSpan={3}
+                    count={tableData.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={handleChangePage}
+                    onChangeRowsPerPage={handleChangeRowsPerPage}
+                  />
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </TableContainer>
+        </Paper >
+        <DownloadButton
+          tableData={tableData}
+          csvLink={this.csvLink}
+        />
+      </div>
     )
   }
 }
@@ -149,7 +160,25 @@ function Row(props) {
   )
 }
 
-
+function DownloadButton(props) {
+  const { tableData, csvLink } = props;
+  return ([
+    <Button
+      variant="contained"
+      onClick={() => csvLink.current.link.click()}
+      key="0"
+    >
+      Export to CSV
+    </Button >,
+    <CSVLink
+      data={tableData}
+      filename={'directory.csv'}
+      className="hidden"
+      ref={csvLink}
+      key="1"
+    />
+  ])
+}
 
 
 const mapStateToProps = state => {
