@@ -1,7 +1,7 @@
 import { Paper, TableSortLabel } from '@material-ui/core';
 import React from 'react';
 import { connect } from 'react-redux';
-import { setUsers } from './directorySlice';
+import { setUsers } from '../../store/users/userSlice';
 import { withStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Collapse from '@material-ui/core/Collapse';
