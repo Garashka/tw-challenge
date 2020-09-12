@@ -1,6 +1,6 @@
 import React from 'react';
-import logo from './logo.svg';
-import DirectoryTable from './features/user-directory/DirectoryTable';
+import logo from '../../images/logo.svg';
+import DirectoryTable from '../user-directory/DirectoryTable';
 import './App.css';
 
 class App extends React.Component {

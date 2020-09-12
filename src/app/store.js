@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import userDirectoryReducer from '../features/user-directory/directorySlice';
+import userDirectoryReducer from '../components/user-directory/directorySlice';
 
 export default configureStore({
   reducer: {
