@@ -24,7 +24,7 @@ const styles = theme => ({
   root: {
     width: '100%',
     '& > *': {
-      margin: theme.spacing(1),
+      margin: theme.spacing(2),
     },
   },
   table: {
@@ -40,8 +40,6 @@ class DirectoryTable extends React.Component {
       rowsPerPage: 5,
       page: 0,
     };
-    // Ref used to link material-UI button to CSV-Link library button
-    this.csvLink = React.createRef();
   }
 
   componentDidMount() {
@@ -60,10 +58,10 @@ class DirectoryTable extends React.Component {
     const { classes, tableData } = this.props;
     const { page, rowsPerPage } = this.state;
 
+    // Pagination functions
     const handleChangePage = (event, newPage) => {
       this.setState({ page: newPage });
     }
-
     const handleChangeRowsPerPage = (event) => {
       this.setState({ rowsPerPage: parseInt(event.target.value, 10) });
       this.setState({ page: 0 });
@@ -84,18 +82,6 @@ class DirectoryTable extends React.Component {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {(this.state.rowsPerPage > 0
-                  ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : tableData
-                ).map((row) => (
-                  <Row key={row.id} row={row} />
-                ))}
-                {(this.state.rowsPerPage > 0
-                  ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : tableData
-                ).map((row) => (
-                  <Row key={row.id} row={row} />
-                ))}
                 {(this.state.rowsPerPage > 0
                   ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   : tableData
@@ -135,6 +121,7 @@ function Row(props) {
   return (
     <React.Fragment>
       <TableRow key={row.id}>
+        {/* Generate an extra cell for a toggle button for the collapsible avatar menu */}
         <TableCell>
           <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -145,9 +132,8 @@ function Row(props) {
         <TableCell>{row.last_name}</TableCell>
         <TableCell>{row.email}</TableCell>
       </TableRow>
-      {/* Collapsible user avatar */}
+      {/* Extra row for collapsible user avatar */}
       <TableRow>
-        {/* TODO: Display loading symbol */}
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto">
             <Box margin={1}>
@@ -160,8 +146,13 @@ function Row(props) {
   )
 }
 
+// Returns a download button that exports csv
 function DownloadButton(props) {
-  const { tableData, csvLink } = props;
+  const { tableData } = props;
+
+  // Ref used to link material-UI button to CSV-Link library button
+  const csvLink = React.createRef();
+
   return ([
     <Button
       variant="contained"
@@ -181,12 +172,12 @@ function DownloadButton(props) {
 }
 
 
+// Redux bindings
 const mapStateToProps = state => {
   return {
     tableData: state.directory.users
   };
 }
-
 const mapDispatchToProps = {
   setUsers,
 }
