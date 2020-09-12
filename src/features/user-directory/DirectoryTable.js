@@ -1,4 +1,4 @@
-import { Paper } from '@material-ui/core';
+import { Paper, TableSortLabel } from '@material-ui/core';
 import React from 'react';
 import { connect } from 'react-redux';
 import { setUsers } from './directorySlice';
@@ -30,15 +30,36 @@ const styles = theme => ({
   table: {
     maxHeight: 800,
   },
+  hiddenSortIcon: {
+    border: 0,
+    clip: 'rect(0 0 0 0)',
+    height: 1,
+    margin: -1,
+    overflow: 'hidden',
+    padding: 0,
+    position: 'absolute',
+    top: 20,
+    width: 1,
+  }
 });
+
+const HeaderCells = [
+  { id: 'id', numeric: true, label: 'ID' },
+  { id: 'first_name', numeric: false, label: 'First Name' },
+  { id: 'surname', numeric: false, label: 'Surname' },
+  { id: 'email', numeric: false, label: 'Email' },
+];
 
 class DirectoryTable extends React.Component {
   constructor(props) {
     super(props);
+    // Local state storage for state specific to table
     this.state = {
       tableData: [],
       rowsPerPage: 5,
       page: 0,
+      order: 'asc',
+      orderBy: 'id'
     };
   }
 
@@ -54,9 +75,38 @@ class DirectoryTable extends React.Component {
       })
   }
 
+
+  descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  getComparator(order, orderBy) {
+    return order === 'desc'
+      ? (a, b) => this.descendingComparator(a, b, orderBy)
+      : (a, b) => -this.descendingComparator(a, b, orderBy);
+  }
+
+  stableSort(array, comparator) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  }
+
+
+
   render() {
     const { classes, tableData } = this.props;
-    const { page, rowsPerPage } = this.state;
+    const { page, rowsPerPage, order, orderBy } = this.state;
 
     // Pagination functions
     const handleChangePage = (event, newPage) => {
@@ -67,26 +117,30 @@ class DirectoryTable extends React.Component {
       this.setState({ page: 0 });
     }
 
+    // Sort functions
+    const handleRequestSort = (event, property) => {
+      const isAsc = orderBy === property && order === 'asc';
+      this.setState({ order: isAsc ? 'desc' : 'asc' });
+      this.setState({ orderBy: property })
+    };
+
     return (
       <div className={classes.root}>
         <Paper>
           <TableContainer className={classes.table}>
             <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  <TableCell></TableCell>
-                  <TableCell>ID</TableCell>
-                  <TableCell>First Name</TableCell>
-                  <TableCell>Surname</TableCell>
-                  <TableCell>Email</TableCell>
-                </TableRow>
-              </TableHead>
+              <this.TableHeaders
+                classes={classes}
+                order={order}
+                orderBy={orderBy}
+                onRequestSort={handleRequestSort}
+              />
               <TableBody>
                 {(this.state.rowsPerPage > 0
                   ? tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   : tableData
                 ).map((row) => (
-                  <Row key={row.id} row={row} />
+                  <this.Row key={row.id} row={row} />
                 ))}
               </TableBody>
               <TableFooter>
@@ -105,70 +159,107 @@ class DirectoryTable extends React.Component {
             </Table>
           </TableContainer>
         </Paper >
-        <DownloadButton
+        <this.DownloadButton
           tableData={tableData}
           csvLink={this.csvLink}
         />
       </div>
     )
   }
-}
 
-// Render row as a function object, to make it simpler to hide/show avatars later
-function Row(props) {
-  const { row } = props;
-  const [open, setOpen] = React.useState(false);
-  return (
-    <React.Fragment>
-      <TableRow key={row.id}>
-        {/* Generate an extra cell for a toggle button for the collapsible avatar menu */}
-        <TableCell>
-          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-        <TableCell>{row.id}</TableCell>
-        <TableCell>{row.first_name}</TableCell>
-        <TableCell>{row.last_name}</TableCell>
-        <TableCell>{row.email}</TableCell>
-      </TableRow>
-      {/* Extra row for collapsible user avatar */}
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto">
-            <Box margin={1}>
-              <img src={row.avatar} alt="User Avatar" />
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </React.Fragment>
-  )
-}
+  // Return table header row with sort features added
+  TableHeaders(props) {
+    const { classes, order, orderBy, onRequestSort } = props;
+    const createSortHandler = (property) => (event) => {
+      onRequestSort(event, property);
+    }
 
-// Returns a download button that exports csv
-function DownloadButton(props) {
-  const { tableData } = props;
+    return (
+      <TableHead>
+        <TableRow>
+          {/* Empty column for expanadable avatar buttons */}
+          <TableCell></TableCell>
+          {HeaderCells.map((header) => (
+            <TableCell
+              key={header.id}
+              sortDirection={orderBy === header.id ? order : false}
+            >
+              <TableSortLabel
+                active={orderBy === header.id}
+                direction={orderBy === header.id ? order : 'asc'}
+                onClick={createSortHandler(header.id)}
+              >
+                {header.label}
+                {/* If we are currently sorting by this column, display the sort order icon (ascend or descent as appropriate) */}
+                {orderBy === header.id ? (
+                  <span className={classes.hiddenSortIcon}>
+                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                  </span>
+                ) : null}
+              </TableSortLabel>
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+    );
+  }
 
-  // Ref used to link material-UI button to CSV-Link library button
-  const csvLink = React.createRef();
+  // Return row for rendering as a function object, to separate out state for show/hide avatars
+  Row(props) {
+    const { row } = props;
+    const [open, setOpen] = React.useState(false);
+    return (
+      <React.Fragment>
+        <TableRow key={row.id}>
+          {/* Extra cell for avatar visibility toggle */}
+          <TableCell>
+            <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </TableCell>
+          <TableCell>{row.id}</TableCell>
+          <TableCell>{row.first_name}</TableCell>
+          <TableCell>{row.last_name}</TableCell>
+          <TableCell>{row.email}</TableCell>
+        </TableRow>
+        {/* Extra row for collapsible user avatar */}
+        <TableRow>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+            <Collapse in={open} timeout="auto">
+              <Box margin={1}>
+                <img src={row.avatar} alt="User Avatar" />
+              </Box>
+            </Collapse>
+          </TableCell>
+        </TableRow>
+      </React.Fragment>
+    )
+  }
 
-  return ([
-    <Button
-      variant="contained"
-      onClick={() => csvLink.current.link.click()}
-      key="0"
-    >
-      Export to CSV
+  // Returns a download button that exports csv
+  DownloadButton(props) {
+    const { tableData } = props;
+
+    // Ref used to link material-UI button to CSV-Link library button
+    const csvLink = React.createRef();
+
+    return ([
+      <Button
+        variant="contained"
+        onClick={() => csvLink.current.link.click()}
+        key="0"
+      >
+        Export to CSV
     </Button >,
-    <CSVLink
-      data={tableData}
-      filename={'directory.csv'}
-      className="hidden"
-      ref={csvLink}
-      key="1"
-    />
-  ])
+      <CSVLink
+        data={tableData}
+        filename={'directory.csv'}
+        className="hidden"
+        ref={csvLink}
+        key="1"
+      />
+    ])
+  }
 }
 
 
