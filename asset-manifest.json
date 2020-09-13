@@ -1,23 +1,23 @@
 {
   "files": {
-    "main.css": "/tw-deployment/static/css/main.5ad7abeb.chunk.css",
-    "main.js": "/tw-deployment/static/js/main.b6769a8f.chunk.js",
-    "main.js.map": "/tw-deployment/static/js/main.b6769a8f.chunk.js.map",
-    "runtime-main.js": "/tw-deployment/static/js/runtime-main.952a250d.js",
-    "runtime-main.js.map": "/tw-deployment/static/js/runtime-main.952a250d.js.map",
-    "static/js/2.6200db47.chunk.js": "/tw-deployment/static/js/2.6200db47.chunk.js",
-    "static/js/2.6200db47.chunk.js.map": "/tw-deployment/static/js/2.6200db47.chunk.js.map",
-    "index.html": "/tw-deployment/index.html",
-    "precache-manifest.837d2554d8940c2160afbf386abc7801.js": "/tw-deployment/precache-manifest.837d2554d8940c2160afbf386abc7801.js",
-    "service-worker.js": "/tw-deployment/service-worker.js",
-    "static/css/main.5ad7abeb.chunk.css.map": "/tw-deployment/static/css/main.5ad7abeb.chunk.css.map",
-    "static/js/2.6200db47.chunk.js.LICENSE.txt": "/tw-deployment/static/js/2.6200db47.chunk.js.LICENSE.txt",
-    "static/media/logo.svg": "/tw-deployment/static/media/logo.8dad8028.svg"
+    "main.css": "/tw-challenge/static/css/main.5ad7abeb.chunk.css",
+    "main.js": "/tw-challenge/static/js/main.d4e31f3e.chunk.js",
+    "main.js.map": "/tw-challenge/static/js/main.d4e31f3e.chunk.js.map",
+    "runtime-main.js": "/tw-challenge/static/js/runtime-main.b3c6dfc4.js",
+    "runtime-main.js.map": "/tw-challenge/static/js/runtime-main.b3c6dfc4.js.map",
+    "static/js/2.fd99c4e2.chunk.js": "/tw-challenge/static/js/2.fd99c4e2.chunk.js",
+    "static/js/2.fd99c4e2.chunk.js.map": "/tw-challenge/static/js/2.fd99c4e2.chunk.js.map",
+    "index.html": "/tw-challenge/index.html",
+    "precache-manifest.0ae1d6b38dbc5b78e7f50b17492730a8.js": "/tw-challenge/precache-manifest.0ae1d6b38dbc5b78e7f50b17492730a8.js",
+    "service-worker.js": "/tw-challenge/service-worker.js",
+    "static/css/main.5ad7abeb.chunk.css.map": "/tw-challenge/static/css/main.5ad7abeb.chunk.css.map",
+    "static/js/2.fd99c4e2.chunk.js.LICENSE.txt": "/tw-challenge/static/js/2.fd99c4e2.chunk.js.LICENSE.txt",
+    "static/media/logo.svg": "/tw-challenge/static/media/logo.8dad8028.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.952a250d.js",
-    "static/js/2.6200db47.chunk.js",
+    "static/js/runtime-main.b3c6dfc4.js",
+    "static/js/2.fd99c4e2.chunk.js",
     "static/css/main.5ad7abeb.chunk.css",
-    "static/js/main.b6769a8f.chunk.js"
+    "static/js/main.d4e31f3e.chunk.js"
   ]
 }
