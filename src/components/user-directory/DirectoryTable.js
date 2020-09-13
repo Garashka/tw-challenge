@@ -1,4 +1,4 @@
-import { Paper, TableSortLabel } from '@material-ui/core';
+import { CircularProgress, Paper, TableSortLabel } from '@material-ui/core';
 import React from 'react';
 import { connect } from 'react-redux';
 import { setUsers } from '../../store/users/userSlice';
@@ -43,6 +43,17 @@ const styles = theme => ({
     position: 'absolute',
     top: 20,
     width: 1,
+  },
+  progress: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    verticalAlign: 'middle',
+    width: '100%'
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    verticalAlign: 'middle',
   }
 });
 
@@ -63,21 +74,23 @@ class DirectoryTable extends React.Component {
       page: 0,
       order: 'asc',
       orderBy: 'id',
-      api: ""
+      userApi: "",
+      dataFetched: false,
     };
   }
 
   componentDidMount() {
-    const { setUsers } = this.props;
-    const { api } = this.props;
+    const { setUsers, userApi } = this.props;
+    const { dataFetched } = this.props;
 
     // In production, a more robust aynsc method should probably used. This will do for now.
     // API address is stored in redux. In production we would have some central store of API addresses rather than in the individual components.
-    fetch(api)
+    fetch(userApi)
       .then(response => response.json())
       .then(data => {
         // Store the requested data in Redux
         setUsers(data);
+        this.setState({ dataFetched: true })
       })
   }
 
@@ -108,7 +121,7 @@ class DirectoryTable extends React.Component {
 
   render() {
     const { classes, tableData } = this.props;
-    const { page, rowsPerPage, order, orderBy } = this.state;
+    const { page, rowsPerPage, order, orderBy, dataFetched } = this.state;
 
     // Pagination functions
     const handleChangePage = (event, newPage) => {
@@ -128,44 +141,47 @@ class DirectoryTable extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Paper className={classes.paper}>
-          <TableContainer className={classes.table}>
-            <Table stickyHeader>
-              <this.TableHeaders
-                classes={classes}
-                order={order}
-                orderBy={orderBy}
-                onRequestSort={handleRequestSort}
-              />
-              <TableBody>
-                {
-                  this.stableSort(tableData, this.getComparator(order, orderBy))
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, index) => (
-                      <this.Row key={row.id} row={row} />
-                    ))
-                }
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                    colSpan={3}
-                    count={tableData.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </Paper >
-        <this.DownloadButton
+        {dataFetched ?
+          <Paper className={classes.paper}>
+            <TableContainer className={classes.table}>
+              <Table stickyHeader>
+                <this.TableHeaders
+                  classes={classes}
+                  order={order}
+                  orderBy={orderBy}
+                  onRequestSort={handleRequestSort}
+                />
+                <TableBody>
+                  {
+                    this.stableSort(tableData, this.getComparator(order, orderBy))
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row, index) => (
+                        <this.Row key={row.id} row={row} />
+                      ))
+                  }
+                </TableBody>
+                <TableFooter>
+                  <TableRow>
+                    <TablePagination
+                      rowsPerPageOptions={[5, 10, 25, 50]}
+                      colSpan={3}
+                      count={tableData.length}
+                      rowsPerPage={rowsPerPage}
+                      page={page}
+                      onChangePage={handleChangePage}
+                      onChangeRowsPerPage={handleChangeRowsPerPage}
+                    />
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </TableContainer>
+          </Paper >
+          : <div><CircularProgress className={classes.progress}></CircularProgress></div>}
+        <div><this.DownloadButton
+          classes={classes}
           tableData={tableData}
           csvLink={this.csvLink}
-        />
+        /></div>
       </div>
     )
   }
@@ -241,7 +257,7 @@ class DirectoryTable extends React.Component {
 
   // Returns a download button that exports csv
   DownloadButton(props) {
-    const { tableData } = props;
+    const { tableData, classes } = props;
 
     // Ref used to link material-UI button to CSV-Link library button
     const csvLink = React.createRef();
@@ -251,6 +267,7 @@ class DirectoryTable extends React.Component {
         variant="contained"
         onClick={() => csvLink.current.link.click()}
         key="0"
+        className={classes.button}
       >
         Export to CSV
     </Button >,
@@ -270,7 +287,7 @@ class DirectoryTable extends React.Component {
 const mapStateToProps = state => {
   return {
     tableData: state.directory.users,
-    api: state.directory.api
+    userApi: state.directory.userApi
   };
 }
 const mapDispatchToProps = {

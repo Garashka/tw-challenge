@@ -1,16 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export const userDirectorySlice = createSlice({
+export const userSlice = createSlice({
   name: 'directory',
   initialState: {
-    api: "https://reqres.in/api/users",
-    users: [{
-      "id": 1,
-      "email": "george.bluth@reqres.in",
-      "first_name": "George",
-      "last_name": "Bluth",
-      "avatar": "https://s3.amazonaws.com/uifaces/faces/twitter/calebogden/128.jpg"
-    }],
+    userApi: "https://reqres.in/api/users",
+    users: [],
   },
   reducers: {
     setUsers: (state, action) => {
@@ -19,6 +13,6 @@ export const userDirectorySlice = createSlice({
   }
 });
 
-export const { setUsers } = userDirectorySlice.actions;
+export const { setUsers } = userSlice.actions;
 
-export default userDirectorySlice.reducer;
+export default userSlice.reducer;
